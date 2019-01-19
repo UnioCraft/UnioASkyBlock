@@ -53,7 +53,6 @@ public class IslandGuard1_8 implements Listener {
 
     }
 
-
     /**
      * Checks if action is allowed for player in location for flag
      * @param player
@@ -70,17 +69,14 @@ public class IslandGuard1_8 implements Listener {
         if (island != null && (island.getIgsFlag(flag) || island.getMembers().contains(player.getUniqueId()))){
             return true;
         }
-        if (island == null && Settings.defaultWorldSettings.get(flag)) {
-            return true;
-        }
-        return false;
+        return island == null && Settings.defaultWorldSettings.get(flag);
     }
 
 
     /**
      * Handle interaction with armor stands V1.8
      * Note - some armor stand protection is done in IslandGuard.java, e.g. against projectiles.
-     * 
+     *
      * @param e - event
      */
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled=true)
@@ -104,7 +100,7 @@ public class IslandGuard1_8 implements Listener {
      * Handle V1.8 blocks that need special treatment
      * Tilling of coarse dirt into dirt
      * Usually prevented because it could lead to an endless supply of dirt with gravel
-     * 
+     *
      * @param e - event
      */
     @SuppressWarnings("deprecation")

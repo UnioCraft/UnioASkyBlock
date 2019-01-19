@@ -445,6 +445,12 @@ general:
    # Maximum number of islands to purge in one go. Don't make this too big because if you
    # stop the server mid run, you may end up with incompletely deleted islands
    maxpurge: 500
+   
+   # Delete protected range only
+   # When set, only the protected area of an island will be deleted.
+   # If you want all of the island distance deleted change to false, but be careful
+   # because large island distances may timeout the server.
+   deleteprotectedonly: true
 
    ##### Economy ######
    # Use economy or not. If true, an economy plugin is required. If false,
@@ -598,6 +604,10 @@ general:
    # Only allow the island leader to coop players.
    # Island members wont be able to coop other players.
    onlyleadercancoop: false
+
+   # Set whether or not players can reject coop requests.
+   # If set to false players are just directly added as a coop player.
+   coopisrequest: true
 
    # Below you can list all account names that ASkyBlock will ignore for some protection.
    # Configure it at your own risk!!

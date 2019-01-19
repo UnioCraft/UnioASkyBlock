@@ -20,7 +20,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.ChatColor;
@@ -66,13 +68,13 @@ public class PlayerEvents implements Listener {
     private final ASkyBlock plugin;
     private static final boolean DEBUG = false;
     // A set of falling players
-    private static HashSet<UUID> fallingPlayers = new HashSet<UUID>();
-    private static HashMap<UUID, List<String>> temporaryPerms = new HashMap<UUID, List<String>>();
+    private static Set<UUID> fallingPlayers = new HashSet<>();
+    private static Map<UUID, List<String>> temporaryPerms = new HashMap<>();
     private List<UUID> respawn;
 
     public PlayerEvents(final ASkyBlock plugin) {
         this.plugin = plugin;
-        respawn = new ArrayList<UUID>();
+        respawn = new ArrayList<>();
     }
 
     /**
@@ -161,7 +163,7 @@ public class PlayerEvents implements Listener {
      * @param e - event
      */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    public void onPlayerEnterOnIsland(IslandEnterEvent e){
+    public void onPlayerEnterOnIsland(final IslandEnterEvent e){
         Player player = plugin.getServer().getPlayer(e.getPlayer());
         if (player != null && !player.hasMetadata("NPC")) {
             if (DEBUG) {
@@ -189,14 +191,11 @@ public class PlayerEvents implements Listener {
             if(VaultHelper.checkPerm(player, Settings.PERMPREFIX + "islandfly", island.getCenter().getWorld())) {
                 if (DEBUG)
                     plugin.getLogger().info("DEBUG: player has fly");
-                plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
+                plugin.getServer().getScheduler().runTask(plugin, () -> {
+                    player.setAllowFlight(true);
+                    player.setFlying(true);
 
-                    @Override
-                    public void run() {
-                        player.setAllowFlight(true);
-                        player.setFlying(true);
-
-                    }});
+                });
 
             }
             if (DEBUG)
@@ -207,7 +206,7 @@ public class PlayerEvents implements Listener {
                     if (Settings.createNether && Settings.newNether && ASkyBlock.getNetherWorld() != null) {
                         VaultHelper.addPerm(player, perm, ASkyBlock.getNetherWorld());
                     }
-                    List<String> perms = new ArrayList<String>();
+                    List<String> perms = new ArrayList<>();
                     if(temporaryPerms.containsKey(player.getUniqueId())) perms = temporaryPerms.get(player.getUniqueId());
                     perms.add(perm);
                     temporaryPerms.put(player.getUniqueId(), perms);
@@ -242,7 +241,7 @@ public class PlayerEvents implements Listener {
      * @param e - event
      */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    public void onPlayerLeaveIsland(IslandExitEvent e) {
+    public void onPlayerLeaveIsland(final IslandExitEvent e) {
         if (DEBUG)
             plugin.getLogger().info("DEBUG: island exit event");
         final Player player = plugin.getServer().getPlayer(e.getPlayer());
@@ -272,7 +271,7 @@ public class PlayerEvents implements Listener {
         // Check if the player has left the island completely
         if(VaultHelper.checkPerm(player, Settings.PERMPREFIX + "islandfly")) {
             // If the player has teleported to another world or island
-            if (toIsland != null && fromIsland.equals(toIsland)) {
+            if (fromIsland.equals(toIsland)) {
                 if (player.isFlying() && player.getGameMode().equals(GameMode.SURVIVAL)) {
                     if (DEBUG)
                         plugin.getLogger().info("DEBUG: player is flying timer is " + Settings.flyTimeOutside + "s");
@@ -423,7 +422,7 @@ public class PlayerEvents implements Listener {
                 }
             }
         }
-    } 
+    }
 
     /*
      * Prevent dropping items if player dies on another island
@@ -482,7 +481,7 @@ public class PlayerEvents implements Listener {
             return;
         }
         Island island = plugin.getGrid().getIslandAt(e.getItemDrop().getLocation());
-        if ((island != null && island.getIgsFlag(SettingsFlag.VISITOR_ITEM_DROP)) 
+        if ((island != null && island.getIgsFlag(SettingsFlag.VISITOR_ITEM_DROP))
                 || e.getPlayer().isOp() || VaultHelper.checkPerm(e.getPlayer(), Settings.PERMPREFIX + "mod.bypassprotect")
                 || plugin.getGrid().locationIsOnIsland(e.getPlayer(), e.getItemDrop().getLocation())) {
             return;
@@ -507,10 +506,10 @@ public class PlayerEvents implements Listener {
          * plugin.getLogger().info(e.getEventName());
          * }
          */
-        if (!IslandGuard.inWorld(e.getPlayer()) 
-                || Settings.allowTeleportWhenFalling 
-                || !e.getPlayer().getGameMode().equals(GameMode.SURVIVAL) 
-                || e.getPlayer().isOp() 
+        if (!IslandGuard.inWorld(e.getPlayer())
+                || Settings.allowTeleportWhenFalling
+                || !e.getPlayer().getGameMode().equals(GameMode.SURVIVAL)
+                || e.getPlayer().isOp()
                 || e.getPlayer().isFlying()) {
             fallingPlayers.remove(e.getPlayer().getUniqueId());
             return;
@@ -530,7 +529,7 @@ public class PlayerEvents implements Listener {
 
     /**
      * Prevents teleporting when falling based on setting by stopping commands
-     * 
+     *
      * @param e - event
      */
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -548,7 +547,7 @@ public class PlayerEvents implements Listener {
         // e.getMessage().substring(1).toLowerCase() + "'");
         if (isFalling(e.getPlayer().getUniqueId()) && (Settings.fallingCommandBlockList.contains("*") || Settings.fallingCommandBlockList.contains(e.getMessage().substring(1).toLowerCase()))) {
             // Sorry you are going to die
-            Util.sendMessage(e.getPlayer(), plugin.myLocale(e.getPlayer().getUniqueId()).errorNoPermission); 
+            Util.sendMessage(e.getPlayer(), plugin.myLocale(e.getPlayer().getUniqueId()).errorNoPermission);
             Util.sendMessage(e.getPlayer(), plugin.myLocale(e.getPlayer().getUniqueId()).islandcannotTeleport);
             e.setCancelled(true);
         }
@@ -556,7 +555,7 @@ public class PlayerEvents implements Listener {
 
     /**
      * Prevents teleporting when falling based on setting and teleporting to locked islands
-     * 
+     *
      * @param e - event
      */
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -566,7 +565,7 @@ public class PlayerEvents implements Listener {
             plugin.getLogger().info("DEBUG: to = " + e.getTo());
             plugin.getLogger().info("DEBUG: from = " + e.getFrom());
         }
-        // Options - 
+        // Options -
         // Player is in an island world and trying to teleport out - handle
         // Player is in an island world and trying to teleport within - handle
         // Player is not in an island world and trying to teleport in - handle
@@ -696,7 +695,7 @@ public class PlayerEvents implements Listener {
             plugin.getLogger().info("DEBUG: announcements");
         if (islandTo != null && islandFrom == null) {
             if (DEBUG )
-                plugin.getLogger().info("DEBUG: entering"); 
+                plugin.getLogger().info("DEBUG: entering");
             // Entering
             if (islandTo.getOwner() != null && (islandTo.isLocked() || plugin.getPlayers().isBanned(islandTo.getOwner(),e.getPlayer().getUniqueId()))) {
                 // Locked island
@@ -772,7 +771,7 @@ public class PlayerEvents implements Listener {
                     e.setCancelled(true);
                     return;
                 }
-            }            
+            }
             if (islandFrom.isSpawn()) {
                 // Leaving
                 if(islandFrom.getIgsFlag(SettingsFlag.ENTER_EXIT_MESSAGES) && !plugin.myLocale(e.getPlayer().getUniqueId()).lockLeavingSpawn.isEmpty()) {
@@ -819,7 +818,7 @@ public class PlayerEvents implements Listener {
 
     /**
      * Used to prevent teleporting when falling
-     * 
+     *
      * @param uniqueId - unique ID
      * @return true or false
      */
@@ -829,7 +828,7 @@ public class PlayerEvents implements Listener {
 
     /**
      * Used to prevent teleporting when falling
-     * 
+     *
      * @param uniqueId - unique ID
      */
     public static void setFalling(UUID uniqueId) {
@@ -838,7 +837,7 @@ public class PlayerEvents implements Listener {
 
     /**
      * Unset the falling flag
-     * 
+     *
      * @param uniqueId - unique ID
      */
     public static void unsetFalling(UUID uniqueId) {
@@ -877,11 +876,12 @@ public class PlayerEvents implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onVisitorGetDamage(EntityDamageByEntityEvent e){
-        if(!Settings.invincibleVisitors) return;
-        if (!Settings.visitorDamagePrevention.contains(e.getCause())) return;
-        if(!(e.getEntity() instanceof Player)) return;
-        // This only handles entity attacks by other players
-        if (!e.getCause().equals(DamageCause.ENTITY_ATTACK)) return;
+        if(!Settings.invincibleVisitors
+                || !Settings.visitorDamagePrevention.contains(e.getCause())
+                || !(e.getEntity() instanceof Player)
+                || !e.getCause().equals(DamageCause.ENTITY_ATTACK)) {
+            return;
+        }
         Player p = (Player) e.getEntity();
         if (!IslandGuard.inWorld(p) || plugin.getGrid().locationIsOnIsland(p, p.getLocation())) return;
         // Find out who the attacker is
@@ -903,11 +903,11 @@ public class PlayerEvents implements Listener {
         // Check if at spawn
         if (plugin.getGrid().isAtSpawn(e.getEntity().getLocation())) {
             // Check if PVP is allowed at spawn or not
-            if ((e.getEntity().getWorld().getEnvironment().equals(Environment.NORMAL) 
+            if ((e.getEntity().getWorld().getEnvironment().equals(Environment.NORMAL)
                     && plugin.getGrid().getIslandAt(e.getEntity().getLocation()).getIgsFlag(SettingsFlag.PVP))
-                    || (e.getEntity().getWorld().getEnvironment().equals(Environment.NETHER) 
+                    || (e.getEntity().getWorld().getEnvironment().equals(Environment.NETHER)
                             && plugin.getGrid().getIslandAt(e.getEntity().getLocation()).getIgsFlag(SettingsFlag.NETHER_PVP))) {
-                // Damage allowed            
+                // Damage allowed
                 return;
             }
             // PVP is not allowed
@@ -919,24 +919,25 @@ public class PlayerEvents implements Listener {
             e.setCancelled(true);
         }
     }
-    
+
     /**
      * Prevents visitors from getting damage if invinciblevisitors option is set to TRUE
      * @param e - event
      */
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onVisitorGetDamage(EntityDamageEvent e){
-        if(!Settings.invincibleVisitors) return;
-        if(!(e.getEntity() instanceof Player)) return;
-        // Entity attacks are handled elsewhere
-        if (e.getCause().equals(DamageCause.ENTITY_ATTACK)) return;
+        if(!Settings.invincibleVisitors
+                || !(e.getEntity() instanceof Player)
+                || !e.getCause().equals(DamageCause.ENTITY_ATTACK)) {
+            return;
+        }
         Player p = (Player) e.getEntity();
-        if (!IslandGuard.inWorld(p) || plugin.getGrid().inIslandSpace(p)) return;
+        if (!IslandGuard.inWorld(p) || plugin.getGrid().locationIsOnIsland(p, p.getLocation())) return;
 
         if (Settings.visitorDamagePrevention.contains(e.getCause())) e.setCancelled(true);
 
         if(e.getCause().equals(DamageCause.VOID)) {
-            if(plugin.getPlayers().hasIsland(p.getUniqueId())) {
+            if (plugin.getPlayers().hasIsland(p.getUniqueId()) || plugin.getPlayers().inTeam(p.getUniqueId())) {
                 Location safePlace = plugin.getGrid().getSafeHomeLocation(p.getUniqueId(), 1);
                 if (safePlace != null) {
                     unsetFalling(p.getUniqueId());
@@ -945,24 +946,22 @@ public class PlayerEvents implements Listener {
                     p.setFallDistance(0);
                     e.setCancelled(true);
                     return;
-                } 
+                }
             }
-            // No island, or no safe spot on island
             if (plugin.getGrid().getSpawn() != null) {
                 p.teleport(plugin.getGrid().getSpawnPoint());
                 // Set their fall distance to zero otherwise they crash onto their island and die
                 p.setFallDistance(0);
                 e.setCancelled(true);
                 return;
-            }
-            // No island spawn, try regular spawn
-            if (!p.performCommand("spawn")) {
+            } else if (!p.performCommand("spawn")) {
                 // If this command doesn't work, let them die otherwise they may get trapped in the void forever
                 return;
+            } else {
+                // Set their fall distance to zero otherwise they crash onto their island and die
+                p.setFallDistance(0);
+                e.setCancelled(true);
             }
-            // Set their fall distance to zero otherwise they crash onto their island and die
-            p.setFallDistance(0);
-            e.setCancelled(true);
         }
     }
 
@@ -970,6 +969,7 @@ public class PlayerEvents implements Listener {
      * Protect players from damage when teleporting
      * @param e - event
      */
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPlayerTeleportDamage(EntityDamageEvent e){
         if(!(e.getEntity() instanceof Player)) return;
 
