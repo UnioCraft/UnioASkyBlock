@@ -16,18 +16,23 @@
 
 package com.wasteofplastic.askyblock;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.WorldCreator;
-import org.bukkit.WorldType;
+import com.wasteofplastic.askyblock.NotSetup.Reason;
+import com.wasteofplastic.askyblock.Settings.GameType;
+import com.wasteofplastic.askyblock.Updater.UpdateResult;
+import com.wasteofplastic.askyblock.Updater.UpdateType;
+import com.wasteofplastic.askyblock.commands.AdminCmd;
+import com.wasteofplastic.askyblock.commands.Challenges;
+import com.wasteofplastic.askyblock.commands.IslandCmd;
+import com.wasteofplastic.askyblock.events.IslandDeleteEvent;
+import com.wasteofplastic.askyblock.events.IslandPreDeleteEvent;
+import com.wasteofplastic.askyblock.events.ReadyEvent;
+import com.wasteofplastic.askyblock.generators.ChunkGeneratorWorld;
+import com.wasteofplastic.askyblock.listeners.*;
+import com.wasteofplastic.askyblock.panels.*;
+import com.wasteofplastic.askyblock.util.HeadGetter;
+import com.wasteofplastic.askyblock.util.Util;
+import com.wasteofplastic.askyblock.util.VaultHelper;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.generator.ChunkGenerator;
@@ -37,42 +42,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import com.wasteofplastic.askyblock.NotSetup.Reason;
-import com.wasteofplastic.askyblock.Settings.GameType;
-import com.wasteofplastic.askyblock.Updater.UpdateResult;
-import com.wasteofplastic.askyblock.Updater.UpdateType;
-import com.wasteofplastic.askyblock.commands.AdminCmd;
-import com.wasteofplastic.askyblock.commands.Challenges;
-import com.wasteofplastic.askyblock.commands.IslandCmd;
-import com.wasteofplastic.askyblock.events.IslandPreDeleteEvent;
-import com.wasteofplastic.askyblock.events.IslandDeleteEvent;
-import com.wasteofplastic.askyblock.events.ReadyEvent;
-import com.wasteofplastic.askyblock.generators.ChunkGeneratorWorld;
-import com.wasteofplastic.askyblock.listeners.AcidEffect;
-import com.wasteofplastic.askyblock.listeners.ChatListener;
-import com.wasteofplastic.askyblock.listeners.CleanSuperFlat;
-import com.wasteofplastic.askyblock.listeners.EntityLimits;
-import com.wasteofplastic.askyblock.listeners.FlyingMobEvents;
-import com.wasteofplastic.askyblock.listeners.IslandGuard;
-import com.wasteofplastic.askyblock.listeners.IslandGuard1_8;
-import com.wasteofplastic.askyblock.listeners.IslandGuard1_9;
-import com.wasteofplastic.askyblock.listeners.JoinLeaveEvents;
-import com.wasteofplastic.askyblock.listeners.LavaCheck;
-import com.wasteofplastic.askyblock.listeners.NetherPortals;
-import com.wasteofplastic.askyblock.listeners.NetherSpawning;
-import com.wasteofplastic.askyblock.listeners.PlayerEvents;
-import com.wasteofplastic.askyblock.listeners.PlayerEvents2;
-import com.wasteofplastic.askyblock.listeners.PlayerEvents3;
-import com.wasteofplastic.askyblock.listeners.WorldEnter;
-import com.wasteofplastic.askyblock.listeners.WorldLoader;
-import com.wasteofplastic.askyblock.panels.BiomesPanel;
-import com.wasteofplastic.askyblock.panels.ControlPanel;
-import com.wasteofplastic.askyblock.panels.SchematicsPanel;
-import com.wasteofplastic.askyblock.panels.SettingsPanel;
-import com.wasteofplastic.askyblock.panels.WarpPanel;
-import com.wasteofplastic.askyblock.util.HeadGetter;
-import com.wasteofplastic.askyblock.util.Util;
-import com.wasteofplastic.askyblock.util.VaultHelper;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author tastybento
@@ -142,6 +115,8 @@ public class ASkyBlock extends JavaPlugin {
     // Head getter
     private HeadGetter headGetter;
     private EntityLimits entityLimits;
+
+    private InfoPanel infoPanel;
 
     /**
      * Returns the World object for the island world named in config.yml.
@@ -605,9 +580,10 @@ public class ASkyBlock extends JavaPlugin {
             getServer().getPluginManager().callEvent(new IslandPreDeleteEvent(player, island));
             if (removeBlocks) {
                 grid.removePlayersFromIsland(island, player);
-                new DeleteIslandChunk(this, island);
+                 new DeleteIslandChunk(plugin, island);
                 //new DeleteIslandByBlock(this, island);
             } else {
+                grid.removePlayersFromIsland(island, player);
                 island.setLocked(false);
                 grid.setIslandOwner(island, null);
             }
@@ -749,6 +725,9 @@ public class ASkyBlock extends JavaPlugin {
         // Schematics panel
         schematicsPanel = new SchematicsPanel(this);
         manager.registerEvents(schematicsPanel, this);
+
+        infoPanel = new InfoPanel(this);
+        manager.registerEvents(infoPanel, this);
         // Track incoming world teleports
         manager.registerEvents(new WorldEnter(this), this);
         // Team chat
@@ -927,6 +906,13 @@ public class ASkyBlock extends JavaPlugin {
      */
     public SchematicsPanel getSchematicsPanel() {
         return schematicsPanel;
+    }
+
+    /**
+     * @return the infoPanel
+     */
+    public InfoPanel getInfoPanel() {
+        return infoPanel;
     }
 
     /**

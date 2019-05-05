@@ -17,11 +17,7 @@
 
 package com.wasteofplastic.askyblock;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -36,6 +32,7 @@ import org.bukkit.entity.Villager;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import com.wasteofplastic.askyblock.util.Util;
+import org.bukkit.material.MaterialData;
 
 /**
  * Stores all the info about an island
@@ -81,6 +78,7 @@ public class Island {
     private Multiset<Material> tileEntityCount = HashMultiset.create();
     // Biome
     private Biome biome;
+    private HashMap<MaterialData, Long> blocks = new HashMap<>();
 
     // Island protection settings
     private static final List<String> islandSettingsKey = new ArrayList<>();
@@ -1007,4 +1005,11 @@ public class Island {
 
     }
 
+    public HashMap<MaterialData, Long> getBlocks() {
+        return blocks;
+    }
+
+    public void setBlocks(HashMap<MaterialData, Long> blocks) {
+        this.blocks = blocks;
+    }
 }

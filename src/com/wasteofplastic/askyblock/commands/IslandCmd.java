@@ -16,32 +16,18 @@
  *******************************************************************************/
 package com.wasteofplastic.askyblock.commands;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Random;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.UUID;
-
+import com.wasteofplastic.askyblock.*;
+import com.wasteofplastic.askyblock.Island.SettingsFlag;
 import com.wasteofplastic.askyblock.events.*;
+import com.wasteofplastic.askyblock.listeners.PlayerEvents;
+import com.wasteofplastic.askyblock.panels.ControlPanel;
+import com.wasteofplastic.askyblock.schematics.Schematic;
+import com.wasteofplastic.askyblock.schematics.Schematic.PasteReason;
+import com.wasteofplastic.askyblock.util.Util;
+import com.wasteofplastic.askyblock.util.VaultHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -66,28 +52,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
-import com.wasteofplastic.askyblock.ASLocale;
-import com.wasteofplastic.askyblock.ASkyBlock;
-import com.wasteofplastic.askyblock.CoopPlay;
-import com.wasteofplastic.askyblock.DeleteIslandChunk;
-import com.wasteofplastic.askyblock.GridManager;
-import com.wasteofplastic.askyblock.Island;
-import com.wasteofplastic.askyblock.Island.SettingsFlag;
-import com.wasteofplastic.askyblock.LevelCalcByChunk;
-import com.wasteofplastic.askyblock.Settings;
-import com.wasteofplastic.askyblock.TopTen;
-import com.wasteofplastic.askyblock.Island.SettingsFlag;
-import com.wasteofplastic.askyblock.events.IslandJoinEvent;
-import com.wasteofplastic.askyblock.events.IslandLeaveEvent;
-import com.wasteofplastic.askyblock.events.IslandNewEvent;
-import com.wasteofplastic.askyblock.events.IslandPreTeleportEvent;
-import com.wasteofplastic.askyblock.events.IslandResetEvent;
-import com.wasteofplastic.askyblock.listeners.PlayerEvents;
-import com.wasteofplastic.askyblock.panels.ControlPanel;
-import com.wasteofplastic.askyblock.schematics.Schematic;
-import com.wasteofplastic.askyblock.schematics.Schematic.PasteReason;
-import com.wasteofplastic.askyblock.util.Util;
-import com.wasteofplastic.askyblock.util.VaultHelper;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.Map.Entry;
 
 @SuppressWarnings("deprecation")
 public class IslandCmd implements CommandExecutor, TabCompleter {
@@ -877,11 +845,6 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
         return next;
     }
 
-
-
-
-
-
     /**
      * Finds the next free island spot based off the last known island Uses
      * island_distance setting from the config file Builds up in a grid fashion
@@ -1575,6 +1538,9 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                     Util.sendMessage(player, plugin.myLocale(player.getUniqueId()).helpColor + "/" + label + " level: " + ChatColor.WHITE + plugin.myLocale(player.getUniqueId()).islandhelpLevel);
                     Util.sendMessage(player, plugin.myLocale(player.getUniqueId()).helpColor + "/" + label + " level <player>: " + ChatColor.WHITE + plugin.myLocale(player.getUniqueId()).islandhelpLevelPlayer);
                 }
+                if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.info")) {
+                    Util.sendMessage(player, plugin.myLocale(player.getUniqueId()).helpColor + "/" + label + " info: " + ChatColor.WHITE + plugin.myLocale(player.getUniqueId()).islandhelpInfo);
+                }
                 if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.name")
                         && plugin.getPlayers().hasIsland(playerUUID)) {
                     Util.sendMessage(player, plugin.myLocale(player.getUniqueId()).helpColor + "/" + label + " name <name>: " + ChatColor.WHITE + plugin.myLocale(player.getUniqueId()).islandHelpName);
@@ -1746,6 +1712,54 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                             Util.sendMessage(player, ChatColor.RED + plugin.myLocale(player.getUniqueId()).topTenerrorExcluded.replace("[perm]", Settings.PERMPREFIX + "intopten"));
                         }
                         calculateIslandLevel(player, playerUUID);
+                        return true;
+                    }
+                } else {
+                    Util.sendMessage(player, ChatColor.RED + plugin.myLocale(playerUUID).errorNoPermission);
+                    return true;
+                }
+            } else if (split[0].equalsIgnoreCase("info")) {
+                if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.info")) {
+                    if (!plugin.getPlayers().inTeam(playerUUID) && !plugin.getPlayers().hasIsland(playerUUID)) {
+                        Util.sendMessage(player, ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorNoIsland);
+                        return true;
+                    } else {
+                        long endFrames = 0;
+                        long sponges = 0;
+                        long diamondBlocks = 0;
+                        long emeraldBlocks = 0;
+                        long lapisBlocks = 0;
+                        long redstoneBlocks = 0;
+                        long ironBlocks = 0 ;
+                        long goldBlocks = 0;
+                        long otherBlocks = 0;
+
+                        Island island = plugin.getGrid().getIsland(player.getUniqueId());
+                        HashMap<MaterialData, Long> blocks = island.getBlocks();
+                        for (MaterialData md : blocks.keySet()) {
+                            if (md.getItemType().equals(Material.ENDER_PORTAL_FRAME)) endFrames += blocks.get(md);
+                            else if (md.getItemType().equals(Material.SPONGE)) sponges += blocks.get(md);
+                            else if (md.getItemType().equals(Material.DIAMOND_BLOCK)) diamondBlocks += blocks.get(md);
+                            else if (md.getItemType().equals(Material.EMERALD_BLOCK)) emeraldBlocks += blocks.get(md);
+                            else if (md.getItemType().equals(Material.LAPIS_BLOCK)) lapisBlocks += blocks.get(md);
+                            else if (md.getItemType().equals(Material.REDSTONE_BLOCK)) redstoneBlocks += blocks.get(md);
+                            else if (md.getItemType().equals(Material.IRON_BLOCK)) ironBlocks += blocks.get(md);
+                            else if (md.getItemType().equals(Material.GOLD_BLOCK)) goldBlocks += blocks.get(md);
+                            else otherBlocks += blocks.get(md);
+                        }
+
+                        HashMap<Material,Long> values = new HashMap<>();
+                        values.put(Material.ENDER_PORTAL_FRAME, endFrames);
+                        values.put(Material.SPONGE, sponges);
+                        values.put(Material.DIAMOND_BLOCK, diamondBlocks);
+                        values.put(Material.EMERALD_BLOCK, emeraldBlocks);
+                        values.put(Material.LAPIS_BLOCK, lapisBlocks);
+                        values.put(Material.REDSTONE_BLOCK, redstoneBlocks);
+                        values.put(Material.IRON_BLOCK, ironBlocks);
+                        values.put(Material.GOLD_BLOCK, goldBlocks);
+                        values.put(Material.SMOOTH_BRICK, otherBlocks);
+                        player.openInventory(plugin.getInfoPanel().infoPanel(island, values));
+                        Util.sendMessage(player, ChatColor.GREEN + "Blok sayılarını güncellemek için /is level yazın.");
                         return true;
                     }
                 } else {
@@ -3340,7 +3354,6 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 
         return false;
     }
-
     /**
      * Sets a timeout for player into the Hashmap resetWaitTime
      *
@@ -3358,7 +3371,6 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
     private void setLevelWaitTime(final Player player) {
         levelWaitTime.put(player.getUniqueId(), Long.valueOf(Calendar.getInstance().getTimeInMillis() + Settings.levelWait * 1000));
     }
-
     /**
      * Returns how long the player must wait until they can restart their island
      * in seconds

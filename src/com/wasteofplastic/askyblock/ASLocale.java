@@ -180,6 +180,8 @@ public class ASLocale {
     public String islandhelpLevel;
     // /island level <player>
     public String islandhelpLevelPlayer;
+    // island info
+    public String islandhelpInfo;
     // /island top;
     public String islandhelpTop;
     // /island warps;
@@ -1039,6 +1041,7 @@ public class ASLocale {
         islandhelpLevel = ChatColor.translateAlternateColorCodes('&', locale.getString("island.helpLevel", "calculate your island level"));
         islandhelpLevelPlayer = ChatColor.translateAlternateColorCodes('&',
                 locale.getString("island.helpLevelPlayer", "see another player's island level."));
+        islandhelpInfo = ChatColor.translateAlternateColorCodes('&', locale.getString("island.helpInfo", "calculate blocks in your island"));
         islandhelpTop = ChatColor.translateAlternateColorCodes('&', locale.getString("island.helpTop", "see the top ranked islands."));
         islandhelpValue = ChatColor.translateAlternateColorCodes('&', locale.getString("island.helpValue", "see island level value of block in hand"));
         islandhelpWarps = ChatColor.translateAlternateColorCodes('&', locale.getString("island.helpWarps", "Lists all available welcome-sign warps."));

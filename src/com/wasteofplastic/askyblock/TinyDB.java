@@ -231,7 +231,6 @@ public class TinyDB {
             //plugin.getLogger().info("DEBUG: found in UUID database");
             return result;
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } 
         return null;
@@ -262,7 +261,6 @@ public class TinyDB {
             plugin.getLogger().info("DEBUG: found in UUID database - name is " + line);
             return line;
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } 
         return "";

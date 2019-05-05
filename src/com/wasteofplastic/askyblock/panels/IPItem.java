@@ -17,10 +17,8 @@
 
 package com.wasteofplastic.askyblock.panels;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
+import com.wasteofplastic.askyblock.ASkyBlock;
+import com.wasteofplastic.askyblock.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -28,8 +26,9 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.wasteofplastic.askyblock.ASkyBlock;
-import com.wasteofplastic.askyblock.util.Util;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * @author tastybento
@@ -65,6 +64,24 @@ public class IPItem {
         meta.setDisplayName(name);
         this.description.addAll(Util.chop(ChatColor.AQUA, description, 25));
         meta.setLore(this.description);
+        item.setItemMeta(meta);
+    }
+
+    /*
+    Only for info panel
+     */
+    public IPItem(Material material, List<String> description, int slot) {
+        this.flagValue = false;
+        this.slot = slot;
+        this.type = Type.INFO;
+        this.description.clear();
+        item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        this.description = description;
+        meta.setLore(this.description);
+        if (material.equals(Material.SMOOTH_BRICK)) {
+            meta.setDisplayName(ChatColor.WHITE + "Diğer Bloklar");
+        }
         item.setItemMeta(meta);
     }
 

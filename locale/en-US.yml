@@ -297,6 +297,7 @@ island:
   helpLeave: "leave another player's island."
   helpLevel: "calculate your island level"
   helpLevelPlayer: "see another player's island level."
+  helpInfo: "calculate blocks in your island"
   helpLock: "Locks island so visitors cannot enter it"
   helpMakeLeader: "transfer the island to <player>."
   helpName: "Set a name for your island"

@@ -1,13 +1,6 @@
 package com.wasteofplastic.askyblock;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.ChatColor;
@@ -50,6 +43,7 @@ public class LevelCalcByChunk {
     private HashMap<MaterialData, Integer> limitCount;
     private boolean report;
     private long oldLevel;
+    private HashMap<MaterialData, Long> blocks = new HashMap<>();
 
 
     public LevelCalcByChunk(final ASkyBlock plugin, final Island island, final UUID targetPlayer, final CommandSender asker, final boolean report) {
@@ -159,6 +153,12 @@ public class LevelCalcByChunk {
                 result.rawBlockCount += count;
                 result.mdCount.add(md);
             }
+            if (blocks.containsKey(md)) {
+                blocks.put(md, blocks.get(md) + 1);
+            }else {
+                blocks.put(md, 1L);
+            }
+
         }
     }
 
@@ -319,6 +319,7 @@ public class LevelCalcByChunk {
         if (!event.isCancelled()) {
             // Save the value
             plugin.getPlayers().setIslandLevel(island.getOwner(), event.getLongLevel());
+            island.setBlocks(blocks);
             if (plugin.getPlayers().inTeam(targetPlayer)) {
                 //plugin.getLogger().info("DEBUG: player is in team");
                 for (UUID member : plugin.getPlayers().getMembers(targetPlayer)) {
