@@ -17,8 +17,9 @@
 
 package com.wasteofplastic.askyblock;
 
-import java.util.*;
-
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
+import com.wasteofplastic.askyblock.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -28,11 +29,9 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.Hopper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Villager;
-
-import com.google.common.collect.HashMultiset;
-import com.google.common.collect.Multiset;
-import com.wasteofplastic.askyblock.util.Util;
 import org.bukkit.material.MaterialData;
+
+import java.util.*;
 
 /**
  * Stores all the info about an island
@@ -797,6 +796,17 @@ public class Island {
         if (Settings.createNether && Settings.newNether && ASkyBlock.getNetherWorld() != null) {
             result.addAll(CoopPlay.getInstance().getCoopPlayers(center.toVector().toLocation(ASkyBlock.getNetherWorld())));
         }
+        if (owner == null) {
+            return result;
+        }
+        result.add(owner);
+        // Add any team members
+        result.addAll(plugin.getPlayers().getMembers(owner));
+        return result;
+    }
+
+    public List<UUID> getMembersWithoutCoops() {
+        List<UUID> result = new ArrayList<UUID>();
         if (owner == null) {
             return result;
         }
