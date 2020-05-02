@@ -1,5 +1,7 @@
-# ASkyBlock is no longer maintained and all development is now on BentoBox and BSkyBlock
-See https://bentobox.world
+## UnioCraft Additions
+- /is info command. It is an info panel that shows how many blocks and which blocks players placed in their islands.
+- USB3 compability. It adds virtual blocks to island level. 
+- Some bug fixes.
 
 ASkyBlock
 ==========
