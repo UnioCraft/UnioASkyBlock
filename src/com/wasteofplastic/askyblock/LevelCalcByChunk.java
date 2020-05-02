@@ -1,7 +1,13 @@
 package com.wasteofplastic.askyblock;
 
-import java.util.*;
-
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
+import com.google.common.collect.Multiset.Entry;
+import com.google.common.collect.Multisets;
+import com.wasteofplastic.askyblock.events.IslandPostLevelEvent;
+import com.wasteofplastic.askyblock.events.IslandPreLevelEvent;
+import com.wasteofplastic.askyblock.util.Pair;
+import com.wasteofplastic.askyblock.util.Util;
 import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.ChunkSnapshot;
@@ -13,14 +19,7 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.scheduler.BukkitTask;
 
-import com.google.common.collect.HashMultiset;
-import com.google.common.collect.Multiset;
-import com.google.common.collect.Multiset.Entry;
-import com.google.common.collect.Multisets;
-import com.wasteofplastic.askyblock.events.IslandPostLevelEvent;
-import com.wasteofplastic.askyblock.events.IslandPreLevelEvent;
-import com.wasteofplastic.askyblock.util.Pair;
-import com.wasteofplastic.askyblock.util.Util;
+import java.util.*;
 
 
 public class LevelCalcByChunk {
@@ -70,7 +69,7 @@ public class LevelCalcByChunk {
         checking = true;
 
         // Start a recurring task until done or cancelled
-        task = plugin.getServer().getScheduler().runTaskTimer(plugin, ()-> {
+        task = plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
             if (this.island.getOwner() == null) {
                 task.cancel();
                 return;
@@ -105,7 +104,7 @@ public class LevelCalcByChunk {
     private void checkChunksAsync(final Set<ChunkSnapshot> chunkSnapshot) {
         // Run async task to scan chunks
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            for (ChunkSnapshot chunk: chunkSnapshot) {
+            for (ChunkSnapshot chunk : chunkSnapshot) {
                 scanChunk(chunk);
             }
             // Nothing happened, change state
@@ -117,7 +116,7 @@ public class LevelCalcByChunk {
     @SuppressWarnings("deprecation")
     private void scanChunk(ChunkSnapshot chunk) {
 
-        for (int x = 0; x< 16; x++) {
+        for (int x = 0; x < 16; x++) {
             // Check if the block coord is inside the protection zone and if not, don't count it
             if (chunk.getX() * 16 + x < island.getMinProtectedX() || chunk.getX() * 16 + x >= island.getMinProtectedX() + island.getProtectionSize()) {
                 continue;
@@ -155,7 +154,7 @@ public class LevelCalcByChunk {
             }
             if (blocks.containsKey(md)) {
                 blocks.put(md, blocks.get(md) + 1);
-            }else {
+            } else {
                 blocks.put(md, 1L);
             }
 
@@ -164,6 +163,7 @@ public class LevelCalcByChunk {
 
     /**
      * Checks if a block has been limited or not and whether a block has any value or not
+     *
      * @param md
      * @return value of the block if can be counted
      */
@@ -199,6 +199,7 @@ public class LevelCalcByChunk {
 
     /**
      * Get a set of all the chunks in island
+     *
      * @param island
      * @return
      */
@@ -217,7 +218,13 @@ public class LevelCalcByChunk {
         // Cancel
         task.cancel();
         // Finalize calculations
-        result.rawBlockCount += (long)(result.underWaterBlockCount * Settings.underWaterMultiplier);
+        result.rawBlockCount += (long) (result.underWaterBlockCount * Settings.underWaterMultiplier);
+        if (plugin.usb3 != null) {
+            String islandString = island.getCenter().getBlockX() + ";" + island.getCenter().getBlockZ();
+            result.rawBlockCount += Long.valueOf(plugin.usb3.blockStacking.getSpongeAmount(islandString)) * 50000L;
+            result.rawBlockCount += Long.valueOf(plugin.usb3.blockStacking.getPortalAmount(islandString)) * 500000L;
+        }
+
         // Set the death penalty
         result.deathHandicap = plugin.getPlayers().getDeaths(island.getOwner());
         // Set final score
@@ -248,8 +255,10 @@ public class LevelCalcByChunk {
         }
         // Calculate how many points are required to get to the next level
         long pointsToNextLevel = (Settings.levelCost * (result.score + 1 + island.getLevelHandicap())) - ((result.rawBlockCount * levelMultiplier) - (result.deathHandicap * Settings.deathpenalty));
+
         // Sometimes it will return 0, so calculate again to make sure it will display a good value
-        if(pointsToNextLevel == 0) pointsToNextLevel = (Settings.levelCost * (result.score + 2 + island.getLevelHandicap()) - ((result.rawBlockCount * levelMultiplier) - (result.deathHandicap * Settings.deathpenalty)));
+        if (pointsToNextLevel == 0)
+            pointsToNextLevel = (Settings.levelCost * (result.score + 2 + island.getLevelHandicap()) - ((result.rawBlockCount * levelMultiplier) - (result.deathHandicap * Settings.deathpenalty)));
 
         // All done.
         informPlayers(saveLevel(island, targetPlayer, pointsToNextLevel));
@@ -261,7 +270,7 @@ public class LevelCalcByChunk {
         final IslandPostLevelEvent event3 = new IslandPostLevelEvent(targetPlayer, island, event.getLongLevel(), event.getLongPointsToNextLevel());
         plugin.getServer().getPluginManager().callEvent(event3);
 
-        if(!event3.isCancelled()){
+        if (!event3.isCancelled()) {
             // Check that sender still is online
             if (asker != null) {
                 // Check if console
@@ -281,21 +290,21 @@ public class LevelCalcByChunk {
                             //plugin.getLogger().info("DEBUG: telling offline players");
                             plugin.getMessages().tellOfflineTeam(targetPlayer, ChatColor.GREEN + plugin.myLocale().islandislandLevelis.replace("[level]", String.valueOf(plugin.getPlayers().getIslandLevel(targetPlayer))));
                         }
-                        if (((Player)asker).isOnline()) {
-                            String message = ChatColor.GREEN + plugin.myLocale(((Player)asker).getUniqueId()).islandislandLevelis.replace("[level]", String.valueOf(plugin.getPlayers().getIslandLevel(targetPlayer)));
+                        if (((Player) asker).isOnline()) {
+                            String message = ChatColor.GREEN + plugin.myLocale(((Player) asker).getUniqueId()).islandislandLevelis.replace("[level]", String.valueOf(plugin.getPlayers().getIslandLevel(targetPlayer)));
                             if (Settings.deathpenalty != 0) {
-                                message += " " + plugin.myLocale(((Player)asker).getUniqueId()).levelDeaths.replace("[number]", String.valueOf(result.deathHandicap));
+                                message += " " + plugin.myLocale(((Player) asker).getUniqueId()).levelDeaths.replace("[number]", String.valueOf(result.deathHandicap));
                             }
                             Util.sendMessage(asker, message);
                             //Send player how many points are required to reach next island level
                             if (event.getLongPointsToNextLevel() >= 0) {
-                                String toNextLevel = ChatColor.GREEN + plugin.myLocale(((Player)asker).getUniqueId()).islandrequiredPointsToNextLevel.replace("[points]", String.valueOf(event.getLongPointsToNextLevel()));
+                                String toNextLevel = ChatColor.GREEN + plugin.myLocale(((Player) asker).getUniqueId()).islandrequiredPointsToNextLevel.replace("[points]", String.valueOf(event.getLongPointsToNextLevel()));
                                 toNextLevel = toNextLevel.replace("[next]", String.valueOf(plugin.getPlayers().getIslandLevel(targetPlayer) + 1));
                                 Util.sendMessage(asker, toNextLevel);
                             }
                         }
                     } else {
-                        if (((Player)asker).isOnline()) {
+                        if (((Player) asker).isOnline()) {
                             sendConsoleReport(asker);
                         }
                         Util.sendMessage(asker, ChatColor.GREEN + plugin.myLocale().islandislandLevelis + " " + ChatColor.WHITE + plugin.getPlayers().getIslandLevel(targetPlayer));
@@ -346,7 +355,7 @@ public class LevelCalcByChunk {
         // provide counts
         reportLines.add("Level Log for island at " + island.getCenter());
         reportLines.add("Island owner UUID = " + island.getOwner());
-        reportLines.add("Total block value count = " + String.format("%,d",result.rawBlockCount));
+        reportLines.add("Total block value count = " + String.format("%,d", result.rawBlockCount));
         reportLines.add("Level cost = " + Settings.levelCost);
         //reportLines.add("Level multiplier = " + levelMultiplier + " (Player must be online to get a permission multiplier)");
         //reportLines.add("Schematic level handicap = " + levelHandicap + " (level is reduced by this amount)");
@@ -356,14 +365,14 @@ public class LevelCalcByChunk {
         int total = 0;
         if (!result.uwCount.isEmpty()) {
             reportLines.add("Underwater block count (Multiplier = x" + Settings.underWaterMultiplier + ") value");
-            reportLines.add("Total number of underwater blocks = " + String.format("%,d",result.uwCount.size()));
+            reportLines.add("Total number of underwater blocks = " + String.format("%,d", result.uwCount.size()));
             reportLines.addAll(sortedReport(total, result.uwCount));
         }
         reportLines.add("Regular block count");
-        reportLines.add("Total number of blocks = " + String.format("%,d",result.mdCount.size()));
+        reportLines.add("Total number of blocks = " + String.format("%,d", result.mdCount.size()));
         reportLines.addAll(sortedReport(total, result.mdCount));
 
-        reportLines.add("Blocks not counted because they exceeded limits: " + String.format("%,d",result.ofCount.size()));
+        reportLines.add("Blocks not counted because they exceeded limits: " + String.format("%,d", result.ofCount.size()));
         //entriesSortedByCount = Multisets.copyHighestCountFirst(ofCount).entrySet();
         Iterable<Multiset.Entry<MaterialData>> entriesSortedByCount = result.ofCount.entrySet();
         Iterator<Entry<MaterialData>> it = entriesSortedByCount.iterator();
@@ -376,17 +385,17 @@ public class LevelCalcByChunk {
                 limit = Settings.blockLimits.get(generic);
                 explain = " - All types)";
             }
-            reportLines.add(type.getElement().toString() + ": " + String.format("%,d",type.getCount()) + " blocks (max " + limit + explain);
+            reportLines.add(type.getElement().toString() + ": " + String.format("%,d", type.getCount()) + " blocks (max " + limit + explain);
         }
         reportLines.add("==================================");
         reportLines.add("Blocks on island that are not in config.yml");
-        reportLines.add("Total number = " + String.format("%,d",result.ncCount.size()));
+        reportLines.add("Total number = " + String.format("%,d", result.ncCount.size()));
         //entriesSortedByCount = Multisets.copyHighestCountFirst(ncCount).entrySet();
         entriesSortedByCount = result.ncCount.entrySet();
         it = entriesSortedByCount.iterator();
         while (it.hasNext()) {
             Entry<MaterialData> type = it.next();
-            reportLines.add(type.getElement().toString() + ": " + String.format("%,d",type.getCount()) + " blocks");
+            reportLines.add(type.getElement().toString() + ": " + String.format("%,d", type.getCount()) + " blocks");
         }
         reportLines.add("=================================");
 
@@ -412,7 +421,7 @@ public class LevelCalcByChunk {
             if (value > 0) {
                 result.add(type.toString() + ":"
                         + String.format("%,d", en.getCount()) + " blocks x " + value + " = " + (value
-                                * en.getCount()));
+                        * en.getCount()));
                 total += (value * en.getCount());
             }
         }
@@ -423,7 +432,6 @@ public class LevelCalcByChunk {
 
     /**
      * Results class
-     *
      */
     public class Results {
         Multiset<MaterialData> mdCount = HashMultiset.create();

@@ -32,6 +32,7 @@ import com.wasteofplastic.askyblock.panels.*;
 import com.wasteofplastic.askyblock.util.HeadGetter;
 import com.wasteofplastic.askyblock.util.Util;
 import com.wasteofplastic.askyblock.util.VaultHelper;
+import net.uniodex.USB3.Main;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
@@ -117,6 +118,7 @@ public class ASkyBlock extends JavaPlugin {
     private EntityLimits entityLimits;
 
     private InfoPanel infoPanel;
+    public Main usb3;
 
     /**
      * Returns the World object for the island world named in config.yml.
@@ -374,6 +376,7 @@ public class ASkyBlock extends JavaPlugin {
             public void run() {
                 // Create the world if it does not exist. This is run after the
                 // server starts.
+                usb3 = (Main) Bukkit.getPluginManager().getPlugin("USB3");
                 getIslandWorld();
                 if (!Settings.useOwnGenerator && getServer().getWorld(Settings.worldName).getGenerator() == null) {
                     // Check if the world generator is registered correctly

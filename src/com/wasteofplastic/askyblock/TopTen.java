@@ -17,19 +17,9 @@
 
 package com.wasteofplastic.askyblock;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-
+import com.wasteofplastic.askyblock.util.HeadGetter.HeadInfo;
+import com.wasteofplastic.askyblock.util.Requester;
+import com.wasteofplastic.askyblock.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -48,9 +38,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
-import com.wasteofplastic.askyblock.util.HeadGetter.HeadInfo;
-import com.wasteofplastic.askyblock.util.Requester;
-import com.wasteofplastic.askyblock.util.Util;
+import java.io.File;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * Handles all Top Ten List functions
@@ -486,6 +478,5 @@ public class TopTen implements Listener, Requester {
     @Override
     public void setHead(HeadInfo headInfo) {
         topTenHeads.put(headInfo.getUuid(), headInfo.getHead());
-
     }
 }

@@ -38,7 +38,6 @@ import java.util.*;
  * Managed by GridManager
  *
  * @author tastybento
- *
  */
 public class Island {
     ASkyBlock plugin;
@@ -81,12 +80,15 @@ public class Island {
 
     // Island protection settings
     private static final List<String> islandSettingsKey = new ArrayList<>();
+
     static {
         islandSettingsKey.clear();
         islandSettingsKey.add("");
     }
+
     private HashMap<SettingsFlag, Boolean> igs = new HashMap<>();
     private int levelHandicap;
+
     /**
      * Island Guard Setting flags
      * Covers island, spawn and system settings
@@ -285,7 +287,8 @@ public class Island {
 
     /**
      * New island by loading islands.yml
-     * @param plugin - ASkyBlock plugin object
+     *
+     * @param plugin      - ASkyBlock plugin object
      * @param serial
      * @param settingsKey
      */
@@ -372,7 +375,7 @@ public class Island {
      * Resets the protection settings to their default as set in config.yml for this island
      */
     public void setIgsDefaults() {
-        for (SettingsFlag flag: SettingsFlag.values()) {
+        for (SettingsFlag flag : SettingsFlag.values()) {
             if (!Settings.defaultIslandSettings.containsKey(flag)) {
                 // Default default
                 if (flag.equals(SettingsFlag.MOB_SPAWN) || flag.equals(SettingsFlag.MONSTER_SPAWN)) {
@@ -399,7 +402,7 @@ public class Island {
      * Reset spawn protection settings to their default as set in config.yml for this island
      */
     public void setSpawnDefaults() {
-        for (SettingsFlag flag: SettingsFlag.values()) {
+        for (SettingsFlag flag : SettingsFlag.values()) {
             if (!Settings.defaultSpawnSettings.containsKey(flag)) {
                 // Default default
                 if (flag.equals(SettingsFlag.MOB_SPAWN) || flag.equals(SettingsFlag.MONSTER_SPAWN)) {
@@ -423,6 +426,7 @@ public class Island {
 
     /**
      * Add a new island using the island center method
+     *
      * @param plugin - ASkyBlock plugin object
      * @param x
      * @param z
@@ -454,6 +458,7 @@ public class Island {
 
     /**
      * Copy constructor
+     *
      * @param island - island to copy
      */
     public Island(Island island) {
@@ -461,7 +466,7 @@ public class Island {
         this.biome = island.biome == null ? null : Biome.valueOf(island.biome.name());
         this.center = island.center != null ? island.center.clone() : null;
         this.createdDate = Long.valueOf(island.createdDate);
-        island.igs.forEach((k,v) -> this.igs.put(k, v));
+        island.igs.forEach((k, v) -> this.igs.put(k, v));
         this.islandDistance = Integer.valueOf(island.islandDistance);
         this.isSpawn = Boolean.valueOf(island.isSpawn);
         this.locked = Boolean.valueOf(island.locked);
@@ -495,7 +500,7 @@ public class Island {
                 return target.getBlockX() >= minProtectedX && target.getBlockX() < (minProtectedX
                         + protectionRange)
                         && target.getBlockZ() >= minProtectedZ && target.getBlockZ() < (minProtectedZ
-                                + protectionRange);
+                        + protectionRange);
             }
         }
         return false;
@@ -532,8 +537,7 @@ public class Island {
     }
 
     /**
-     * @param minX
-     *            the minX to set
+     * @param minX the minX to set
      */
     public void setMinX(int minX) {
         this.minX = minX;
@@ -547,8 +551,7 @@ public class Island {
     }
 
     /**
-     * @param minZ
-     *            the z to set
+     * @param minZ the z to set
      */
     public void setMinZ(int minZ) {
         this.minZ = minZ;
@@ -576,8 +579,7 @@ public class Island {
     }
 
     /**
-     * @param protectionSize
-     *            the protectionSize to set
+     * @param protectionSize the protectionSize to set
      */
     public void setProtectionSize(int protectionSize) {
         this.protectionRange = protectionSize;
@@ -594,8 +596,7 @@ public class Island {
     }
 
     /**
-     * @param islandDistance
-     *            the islandDistance to set
+     * @param islandDistance the islandDistance to set
      */
     public void setIslandDistance(int islandDistance) {
         this.islandDistance = islandDistance;
@@ -609,8 +610,7 @@ public class Island {
     }
 
     /**
-     * @param center
-     *            the center to set
+     * @param center the center to set
      */
     public void setCenter(Location center) {
         this.center = center;
@@ -624,8 +624,7 @@ public class Island {
     }
 
     /**
-     * @param owner
-     *            the owner to set
+     * @param owner the owner to set
      */
     public void setOwner(UUID owner) {
         this.owner = owner;
@@ -642,8 +641,7 @@ public class Island {
     }
 
     /**
-     * @param createdDate
-     *            the createdDate to set
+     * @param createdDate the createdDate to set
      */
     public void setCreatedDate(long createdDate) {
         this.createdDate = createdDate;
@@ -657,8 +655,7 @@ public class Island {
     }
 
     /**
-     * @param updatedDate
-     *            the updatedDate to set
+     * @param updatedDate the updatedDate to set
      */
     public void setUpdatedDate(long updatedDate) {
         this.updatedDate = updatedDate;
@@ -672,8 +669,7 @@ public class Island {
     }
 
     /**
-     * @param password
-     *            the password to set
+     * @param password the password to set
      */
     public void setPassword(String password) {
         this.password = password;
@@ -687,8 +683,7 @@ public class Island {
     }
 
     /**
-     * @param votes
-     *            the votes to set
+     * @param votes the votes to set
      */
     public void setVotes(int votes) {
         this.votes = votes;
@@ -702,8 +697,7 @@ public class Island {
     }
 
     /**
-     * @param locked
-     *            the locked to set
+     * @param locked the locked to set
      */
     public void setLocked(boolean locked) {
         // Bukkit.getLogger().info("DEBUG: island is now " + locked);
@@ -712,6 +706,7 @@ public class Island {
 
     /**
      * Serializes the island for island.yml storage
+     *
      * @return string that represents the island settings
      */
     public String save() {
@@ -725,7 +720,7 @@ public class Island {
                         + islandDistance + ":" + ownerString + ":" + locked + ":" + purgeProtected + ":SP:" + Util.getStringLocation(spawnPoint);
             }
             return center.getBlockX() + ":" + center.getBlockY() + ":" + center.getBlockZ() + ":" + protectionRange + ":"
-            + islandDistance + ":" + ownerString + ":" + locked + ":" + purgeProtected;
+                    + islandDistance + ":" + ownerString + ":" + locked + ":" + purgeProtected;
         }
         // Not spawn
         if (owner != null) {
@@ -733,7 +728,7 @@ public class Island {
         }
 
         return center.getBlockX() + ":" + center.getBlockY() + ":" + center.getBlockZ() + ":" + protectionRange + ":"
-        + islandDistance + ":" + ownerString + ":" + locked + ":" + purgeProtected + ":" + getSettings() + ":" + getBiome().toString() + ":" + levelHandicap;
+                + islandDistance + ":" + ownerString + ":" + locked + ":" + purgeProtected + ":" + getSettings() + ":" + getBiome().toString() + ":" + levelHandicap;
     }
 
     /**
@@ -744,7 +739,7 @@ public class Island {
         // Personal island protection settings - serialize enum into 1's and 0's representing the boolean values
         //plugin.getLogger().info("DEBUG: igs = " + igs.toString());
         try {
-            for (SettingsFlag f: SettingsFlag.values()) {
+            for (SettingsFlag f : SettingsFlag.values()) {
                 //plugin.getLogger().info("DEBUG: flag f = " + f);
                 if (this.igs.containsKey(f)) {
                     //plugin.getLogger().info("DEBUG: contains key");
@@ -763,6 +758,7 @@ public class Island {
 
     /**
      * Get the Island Guard flag status
+     *
      * @param flag - settings flag to check
      * @return true or false, or false if flag is not in the list
      */
@@ -776,7 +772,8 @@ public class Island {
 
     /**
      * Set the Island Guard flag
-     * @param flag - settings flag to check
+     *
+     * @param flag  - settings flag to check
      * @param value - value to set true or false
      */
     public void setIgsFlag(SettingsFlag flag, boolean value) {
@@ -810,9 +807,16 @@ public class Island {
         if (owner == null) {
             return result;
         }
+
         result.add(owner);
+
         // Add any team members
-        result.addAll(plugin.getPlayers().getMembers(owner));
+        for (UUID member : plugin.getPlayers().getMembers(owner)) {
+            if (!result.contains(member)) {
+                result.add(member);
+            }
+        }
+
         return result;
     }
 
@@ -824,8 +828,7 @@ public class Island {
     }
 
     /**
-     * @param isSpawn
-     *            the isSpawn to set
+     * @param isSpawn the isSpawn to set
      */
     public void setSpawn(boolean isSpawn) {
         this.isSpawn = isSpawn;
@@ -850,8 +853,8 @@ public class Island {
      */
     public int getPopulation() {
         int result = 0;
-        for (int x = getMinProtectedX() /16; x <= (getMinProtectedX() + getProtectionSize() - 1)/16; x++) {
-            for (int z = getMinProtectedZ() /16; z <= (getMinProtectedZ() + getProtectionSize() - 1)/16; z++) {
+        for (int x = getMinProtectedX() / 16; x <= (getMinProtectedX() + getProtectionSize() - 1) / 16; x++) {
+            for (int z = getMinProtectedZ() / 16; z <= (getMinProtectedZ() + getProtectionSize() - 1) / 16; z++) {
                 for (Entity entity : world.getChunkAt(x, z).getEntities()) {
                     if (entity instanceof Villager && onIsland(entity.getLocation())) {
                         result++;
@@ -868,8 +871,8 @@ public class Island {
     public int getHopperCount() {
         tileEntityCount.clear();
         int result = 0;
-        for (int x = getMinProtectedX() /16; x <= (getMinProtectedX() + getProtectionSize() - 1)/16; x++) {
-            for (int z = getMinProtectedZ() /16; z <= (getMinProtectedZ() + getProtectionSize() - 1)/16; z++) {
+        for (int x = getMinProtectedX() / 16; x <= (getMinProtectedX() + getProtectionSize() - 1) / 16; x++) {
+            for (int z = getMinProtectedZ() / 16; z <= (getMinProtectedZ() + getProtectionSize() - 1) / 16; z++) {
                 for (BlockState holder : world.getChunkAt(x, z).getTileEntities()) {
                     if (holder instanceof Hopper && onIsland(holder.getLocation())) {
                         result++;
@@ -882,14 +885,14 @@ public class Island {
 
     /**
      * @param material Bukkit material to check
-     * @param world - world to check
+     * @param world    - world to check
      * @return count of how many tile entities of type mat are on the island at last count. Counts are done when a player places
      * a tile entity.
      */
     public int getTileEntityCount(Material material, World world) {
         int result = 0;
-        for (int x = getMinProtectedX() /16; x <= (getMinProtectedX() + getProtectionSize() - 1)/16; x++) {
-            for (int z = getMinProtectedZ() /16; z <= (getMinProtectedZ() + getProtectionSize() - 1)/16; z++) {
+        for (int x = getMinProtectedX() / 16; x <= (getMinProtectedX() + getProtectionSize() - 1) / 16; x++) {
+            for (int z = getMinProtectedZ() / 16; z <= (getMinProtectedZ() + getProtectionSize() - 1) / 16; z++) {
                 for (BlockState holder : world.getChunkAt(x, z).getTileEntities()) {
                     //plugin.getLogger().info("DEBUG: tile entity: " + holder.getType());
                     if (onIsland(holder.getLocation())) {
@@ -942,7 +945,8 @@ public class Island {
 
     /**
      * Toggles the Island Guard Flag
-     * @param flag  - settings flag to toggle
+     *
+     * @param flag - settings flag to toggle
      */
     public void toggleIgs(SettingsFlag flag) {
         if (igs.containsKey(flag)) {
@@ -984,7 +988,8 @@ public class Island {
 
     /**
      * Sets the settings for the island.
-     * @param settings - string of 0 and 1's that define the settings for the island
+     *
+     * @param settings    - string of 0 and 1's that define the settings for the island
      * @param settingsKey - a list showing the order and what flags each digit refers to
      */
     public void setSettings(String settings, List<String> settingsKey) {
@@ -995,7 +1000,7 @@ public class Island {
         } else {
             setIgsDefaults();
         }
-        if(settings == null || settings.isEmpty())
+        if (settings == null || settings.isEmpty())
             return;
         if (settingsKey.size() != settings.length()) {
             plugin.getLogger().severe("Island settings does not match settings key in islands.yml. Using defaults.");

@@ -1217,7 +1217,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                         if (!island.isLocked()) {
                             // Remove any visitors
                             for (Player target : plugin.getServer().getOnlinePlayers()) {
-                                if (target == null || target.hasMetadata("NPC") || target.isOp() || player.equals(target) || VaultHelper.checkPerm(target, Settings.PERMPREFIX + "mod.bypassprotect"))
+                                if (target == null || target.hasMetadata("NPC") || target.isOp() || player.equals(target) || VaultHelper.checkPerm(target, Settings.PERMPREFIX + "mod.bypasslock"))
                                     continue;
                                 // See if target is on this player's island and not a coop player
                                 if (plugin.getGrid().isOnIsland(player, target)
@@ -1754,6 +1754,10 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                 else if (md.getItemType().equals(Material.GOLD_BLOCK)) goldBlocks += blocks.get(md);
                                 else otherBlocks += blocks.get(md);
                             }
+
+                            String islandString = island.getCenter().getBlockX() + ";" + island.getCenter().getBlockZ();
+                            endFrames += Long.valueOf(plugin.usb3.blockStacking.getPortalAmount(islandString));
+                            sponges += Long.valueOf(plugin.usb3.blockStacking.getSpongeAmount(islandString));
 
                             HashMap<Material, Long> values = new HashMap<>();
                             values.put(Material.ENDER_PORTAL_FRAME, endFrames);

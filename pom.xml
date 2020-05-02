@@ -106,6 +106,13 @@
 			<scope>provided</scope>
 			<type>jar</type>
 		</dependency>
+		<dependency>
+			<groupId>USB3</groupId>
+			<artifactId>USB3</artifactId>
+			<scope>system</scope>
+			<systemPath>${server.jars}/USB3.jar</systemPath>
+			<version>LATEST</version>
+		</dependency>
 		<!-- These server binaries have to be provided by you and put in the server.jars 
 			folder You can build the latest versions using the BuildTools.jar tool from 
 			spigotmc.org. If you do not have or do not need a server version, delete 
